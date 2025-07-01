@@ -6,13 +6,13 @@ from dbutils.pooled_db import PooledDB
 
 
 class SqLite:
-    def __init__(self, database: str, max_connections: int = 50):
+    def __init__(self, db: str, max_connections: int = 50):
         """
         babySql for SQLite
-        :param database: SQLite数据库文件路径（或":memory:"表示内存数据库）
+        :param db: SQLite数据库文件路径（或":memory:"表示内存数据库）
         :param max_connections: 最大连接数
         """
-        self.__database__ = database
+        self.__database__ = db
         self.__max_connections__ = max_connections
         # SQLite连接池
         self.__pool__ = PooledDB(
