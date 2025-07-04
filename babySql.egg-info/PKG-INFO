@@ -30,7 +30,22 @@ Dynamic: summary
 
 `BabySql` 是一个用于简化数据库操作的 Python 代码库，支持多种数据库后端，目前包括 MySQL、MariaDB、PostgreSQL 和
 SQLite。该库通过统一的接口提供了创建表、数据操作、数据库管理等功能。
-
+## pypi地址：
+```
+https://pypi.org/project/babySql/
+```
+## 包安装：
+```
+pip install babySql
+```
+## 源码下载：
+```
+git clone https://github.com/yourname/babySql.git  
+```
+## 源码地址：
+```
+https://github.com/yanshi121/BabySql
+```
 ## 核心类与使用
 
 ### 1. 获取连接
@@ -182,7 +197,7 @@ from babySql import BabySql
 ms = BabySql(dt_type="mysql", host="127.0.0.1", port=3306, user="root", passwd="root123", db="test",
              max_connections=50)
 # 查看数据库中的所有表
-table = ms.show_table()
+table1 = ms.show_table()
 # 查看test_database数据库中的所有表
-table = ms.show_table_by_database_name("test_database")
+table2 = ms.show_table_by_database_name("test_database")
 ```
