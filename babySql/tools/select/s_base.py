@@ -284,12 +284,10 @@ class SQLSelectConditionsBuilderBase(ABC):
         """
         conditions = []
         params = []
-
         if self.__and_where_clauses__:
             and_conditions = " AND ".join([c[0] for c in self.__and_where_clauses__])
             conditions.append(f"({and_conditions})")
             params.extend([p for c in self.__and_where_clauses__ for p in c[1]])
-
         if self.__or_where_clauses__:
             or_conditions = " OR ".join([c[0] for c in self.__or_where_clauses__])
             conditions.append(f"({or_conditions})")
@@ -304,7 +302,6 @@ class SQLSelectConditionsBuilderBase(ABC):
         """
         where_clause, params = self._build_where_clause()
         where_clause = f"WHERE {where_clause}" if where_clause else ""
-
         # 构建完整SQL语句
         if self.__sort_sql__ != "":
             sql = f"{self.__head_sql__} {where_clause} {self.__sort_sql__} {self.__limit_sql__};"
@@ -312,7 +309,6 @@ class SQLSelectConditionsBuilderBase(ABC):
             sql = f"{self.__head_sql__} {where_clause} {self.__group_by_sql__} {self.__limit_sql__};"
         else:
             sql = f"{self.__head_sql__} {where_clause} {self.__limit_sql__};"
-
         # 执行SQL
         self.__cursor__.execute(sql, params)
         row = self.__cursor__.fetchall()

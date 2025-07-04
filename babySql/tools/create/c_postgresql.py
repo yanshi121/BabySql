@@ -13,6 +13,10 @@ class PostgreSQLCreateTable:
     """
 
     def __init__(self, connect, cursor, table_name: str, table_comment: str = None):
+        if type(table_name) is not str:
+            raise TypeError("table_name must be a str")
+        if table_comment is not None and type(table_comment) is not str:
+            raise TypeError("table_comment must be a str")
         self.__connect__ = connect
         self.__cursor__ = cursor
         self.__table_name__ = table_name
@@ -29,6 +33,8 @@ class PostgreSQLCreateTable:
         :param column_name: 字段名
         :return: _ColumnBuilder实例
         """
+        if type(column_name) is not str:
+            raise TypeError("column_name must be a str")
         if any(col["name"] == column_name for col in self.__columns__):
             raise ValueError(f"Column '{column_name}' already exists in table '{self.__table_name__}'")
         column = {
@@ -44,7 +50,10 @@ class PostgreSQLCreateTable:
         return self._ColumnBuilder(self, column)
 
     class _ColumnBuilder:
-        """ 列属性构建器 """
+        """
+        列属性构建器
+        :return:
+        """
         _NO_LENGTH_TYPES = {"TEXT", "DATE", "TIMESTAMP", "BOOLEAN", "JSONB", "SERIAL", "BIGSERIAL"}
 
         def __init__(self, parent, column):
@@ -56,7 +65,12 @@ class PostgreSQLCreateTable:
             设置列数据类型
             :param column_type: 数据类型 (e.g., "INT", "VARCHAR")
             :param length: 可选长度参数
+            :return:
             """
+            if type(column_type) is not str:
+                raise TypeError("column_type must be a str")
+            if type(length) is not int:
+                raise TypeError("length must be a int")
             self._column["type"] = column_type.upper()
             # PostgreSQL 中 SERIAL 类型不需要长度
             if column_type.upper() in ("SERIAL", "BIGSERIAL"):
@@ -68,12 +82,21 @@ class PostgreSQLCreateTable:
             return self
 
         def is_not_null(self, not_null: bool = True):
-            """ 设置NOT NULL约束 """
+            """
+            设置NOT NULL约束
+            :param not_null: 是否运行为空
+            :return:
+            """
+            if type(not_null) is not bool:
+                raise TypeError("not_null must be a bool")
             self._column["not_null"] = not_null
             return self
 
         def auto_increment(self):
-            """ PostgreSQL 使用 SERIAL 类型处理自增 """
+            """
+            PostgreSQL 使用 SERIAL 类型处理自增
+            :return:
+            """
             if self._column["type"] not in ("INTEGER", "INT", "BIGINT"):
                 raise ValueError("Auto-increment requires integer type (INT, BIGINT, etc.)")
             # 根据类型选择合适的 SERIAL 类型
@@ -86,23 +109,44 @@ class PostgreSQLCreateTable:
             return self
 
         def unique(self):
-            """ 设置唯一约束 (列级) """
+            """
+            设置唯一约束 (列级)
+            :return:
+            """
             self._column["unique"] = True
             return self
 
         def primary_key(self):
-            """ 设置为主键 (列级) """
+            """
+            设置为主键 (列级)
+            :return:
+            """
             self._parent.add_primary_key([self._column["name"]])
             return self
 
         def comment(self, column_comment: str):
-            """ 设置列注释 """
+            """
+            设置列注释
+            :param column_comment: 字段注释
+            :return:
+            """
+            if type(column_comment) is not str:
+                raise TypeError("column_comment must be a str")
             self._column["comment"] = column_comment
             return self
 
         def foreign_key(self, ref_table: str, ref_column: str):
-            """ 添加外键约束 """
+            """
+            添加外键约束
+            :param ref_table: 表名
+            :param ref_column: 字段名
+            :return:
+            """
             # 外键列自动设置NOT NULL
+            if type(ref_table) is not str:
+                raise TypeError("ref_table must be a str")
+            if type(ref_column) is not str:
+                raise TypeError("ref_column must be a str")
             self._column["not_null"] = True
             self._parent.add_foreign_key(self._column["name"], ref_table, ref_column)
             return self
@@ -111,7 +155,10 @@ class PostgreSQLCreateTable:
         """
         添加主键 (支持复合主键)
         :param columns: 主键列名列表
+        :return:
         """
+        if type(columns) is not list:
+            raise TypeError("columns must be a list")
         if not columns:
             raise ValueError("Primary key must include at least one column")
         # 验证所有列都存在
@@ -130,7 +177,14 @@ class PostgreSQLCreateTable:
         :param column: 当前表列名
         :param ref_table: 引用表名
         :param ref_column: 引用列名
+        :return:
         """
+        if type(column) is not str:
+            raise TypeError("column must be a str")
+        if type(ref_table) is not str:
+            raise TypeError("ref_table must be a str")
+        if type(ref_column) is not str:
+            raise TypeError("ref_column must be a str")
         if not any(c["name"] == column for c in self.__columns__):
             raise ValueError(f"Column '{column}' not defined for foreign key")
         # 确保外键列有NOT NULL约束
@@ -149,7 +203,12 @@ class PostgreSQLCreateTable:
         添加唯一约束
         :param columns: 列名列表
         :param constraint_name: 可选约束名
+        :return:
         """
+        if type(columns) is not list:
+            raise TypeError("columns must be a list")
+        if constraint_name is not None and not columns:
+            raise ValueError("Unique constraint must include at least one column")
         if not constraint_name:
             constraint_name = f"uq_{self.__table_name__}_{'_'.join(columns)}"
         self.__unique_constraints__.append({
@@ -164,7 +223,14 @@ class PostgreSQLCreateTable:
         :param index_prefix: 可选索引名
         :param is_group: 是否是复合索引
         :param is_unique: 是否是唯一索引
+        :return:
         """
+        if type(columns) is not list:
+            raise TypeError("columns must be a list")
+        if index_prefix is not None and type(index_prefix) is not str:
+            raise TypeError("index_prefix must be a str")
+        if type(is_group) is not bool:
+            raise TypeError("is_group must be a bool")
         if is_group:
             # 复合索引 - 所有列在一个索引中
             if not index_prefix:
@@ -203,16 +269,31 @@ class PostgreSQLCreateTable:
 
     @staticmethod
     def _escape_identifier(identifier: str) -> str:
-        """转义标识符（表名、列名）"""
+        """
+        转义标识符（表名、列名）
+        :param identifier: 数据
+        :return:
+        """
+        if type(identifier) is not str:
+            raise TypeError("identifier must be a str")
         return f'"{identifier}"'
 
     @staticmethod
     def _escape_value(value: str) -> str:
-        """转义字符串值（用于注释）"""
+        """
+        转义字符串值（用于注释）
+        :param value: 数据
+        :return:
+        """
+        if type(value) is not str:
+            raise TypeError("value must be a str")
         return value.replace("'", "''")
 
     def build(self):
-        """构建并执行CREATE TABLE语句"""
+        """
+        构建并执行CREATE TABLE语句
+        :return:
+        """
         if not self.__columns__:
             raise ValueError("No columns defined for table creation")
 

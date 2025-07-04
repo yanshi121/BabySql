@@ -15,6 +15,18 @@ class MySQL:
         :param db: 数据库名称
         :param max_connections: 最大连接数
         """
+        if type(db) is not str:
+            raise TypeError("db should be str")
+        if type(max_connections) is not int:
+            raise TypeError("max_connections should be int")
+        if type(user) is not str:
+            raise TypeError("user should be str")
+        if type(passwd) is not str:
+            raise TypeError("passwd should be str")
+        if type(host) is not str:
+            raise TypeError("host should be str")
+        if type(port) is not int:
+            raise TypeError("port should be int")
         self.__host__ = host
         self.__port__ = port
         self.__user__ = user
@@ -55,6 +67,10 @@ class MySQL:
         :param params: 参数，输入参数为参数化查询
         :return:
         """
+        if type(sql) is not str:
+            raise TypeError("sql should be str")
+        if params is not None and type(params) is not tuple:
+            raise TypeError("params should be tuple")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         if params is None:
@@ -75,6 +91,12 @@ class MySQL:
         :param values: 插入数据
         :return:
         """
+        if type(table) is not str:
+            raise TypeError("table should be str")
+        if type(columns) is not list:
+            raise TypeError("columns should be list")
+        if type(values) is not list:
+            raise TypeError("values should be list")
         if type(columns) is not list:
             raise TypeError(f"columns {columns} type is not list")
         if type(values) is not list:
@@ -123,6 +145,8 @@ class MySQL:
         :param columns_values: 修改的数据
         :return:
         """
+        if type(table) is not str:
+            raise TypeError("table should be str")
         if type(columns_values) is not dict:
             raise TypeError(f"columns_values {columns_values} type is not dict")
         cvs = ', '.join([f"{k}='{v}'" for k, v in columns_values.items()])
@@ -137,6 +161,8 @@ class MySQL:
         :param table: 表名
         :return:
         """
+        if type(table) is not str:
+            raise TypeError("table should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         head_sql = f"DELETE FROM {table}"
@@ -149,6 +175,8 @@ class MySQL:
         :param columns: 字段名，默认为全部
         :return:
         """
+        if type(table) is not str:
+            raise TypeError("table should be str")
         if columns is not None and type(columns) is not list:
             raise TypeError(f"columns {columns} type is not list")
         if columns is None:
@@ -167,7 +195,7 @@ class MySQL:
         cursor = connect.cursor()
         return MySQLSelectConditionsBuilder(head_sql, cursor, connect)
 
-    def create_table(self, table_name, table_comment=None):
+    def create_table(self, table_name: str, table_comment=None):
         """
         创建表\n
         table = create_table("test")\n
@@ -178,11 +206,15 @@ class MySQL:
         :param table_comment: 表的备注
         :return:
         """
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
+        if table_name is not None and type(table_comment) is not str:
+            raise TypeError("table_comment should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         return MySQLCreateTable(connect, cursor, table_name, table_comment=table_comment)
 
-    def create_database(self, database_name, character="utf8mb4", collate="utf8mb4_general_ci"):
+    def create_database(self, database_name: str, character="utf8mb4", collate="utf8mb4_general_ci"):
         """
         创建数据库
         :param database_name: 数据库名
@@ -190,6 +222,12 @@ class MySQL:
         :param collate: 校对规则
         :return:
         """
+        if type(database_name) is not str:
+            raise TypeError("database_name should be str")
+        if type(character) is not str:
+            raise TypeError("character should be str")
+        if type(collate) is not str:
+            raise TypeError("collate should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"CREATE DATABASE IF NOT EXISTS {database_name} CHARACTER SET {character} COLLATE {collate}"
@@ -198,12 +236,14 @@ class MySQL:
         cursor.close()
         connect.close()
 
-    def drop_table(self, table_name):
+    def drop_table(self, table_name: str):
         """
         删除表
         :param table_name: 表名
         :return:
         """
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"DROP TABLE IF EXISTS {table_name};"
@@ -233,6 +273,8 @@ class MySQL:
         :param name: 数据库名
         :return:
         """
+        if type(name) is not str:
+            raise TypeError("name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"SELECT TABLE_NAME AS '表名' FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{name}';"
@@ -258,12 +300,14 @@ class MySQL:
         connect.close()
         return row
 
-    def drop_database(self, database_name):
+    def drop_database(self, database_name: str):
         """
         删除数据库
         :param database_name: 数据库名
         :return:
         """
+        if type(database_name) is not str:
+            raise TypeError("database_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"DROP DATABASE IF EXISTS {database_name}"
@@ -272,13 +316,17 @@ class MySQL:
         cursor.close()
         connect.close()
 
-    def alter_table_name(self, table_name, new_table_name):
+    def alter_table_name(self, table_name: str, new_table_name: str):
         """
         更改表名
         :param table_name: 现在的表名
         :param new_table_name: 新的表名
         :return:
         """
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
+        if type(new_table_name) is not str:
+            raise TypeError("new_table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"ALTER TABLE {table_name} RENAME TO {new_table_name}"
@@ -287,13 +335,17 @@ class MySQL:
         cursor.close()
         connect.close()
 
-    def drop_column(self, table_name, column):
+    def drop_column(self, table_name: str, column: str):
         """
         删除表中的某个字段
         :param table_name: 表名
         :param column: 字段名
         :return:
         """
+        if type(column) is not str:
+            raise TypeError("column should be str")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"ALTER TABLE {table_name} DROP {column};"
@@ -315,6 +367,20 @@ class MySQL:
         :param is_auto_increment: 是否自增
         :return:
         """
+        if type(column_name) is not str:
+            raise TypeError("column_name should be str")
+        if type(column_type) is not str:
+            raise TypeError("column_type should be str")
+        if type(length) is not int:
+            raise TypeError("length should be int")
+        if type(is_not_null) is not bool:
+            raise TypeError("is_not_null should be bool")
+        if type(is_primary_key) is not bool:
+            raise TypeError("is_primary_key should be bool")
+        if type(is_auto_increment) is not bool:
+            raise TypeError("is_auto_increment should be bool")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         constraint = ""
@@ -341,6 +407,16 @@ class MySQL:
         :param length: 长度
         :return:
         """
+        if type(column_name) is not str:
+            raise TypeError("column_name should be str")
+        if type(new_column_name) is not str:
+            raise TypeError("new_column_name should be str")
+        if type(column_type) is not str:
+            raise TypeError("column_type should be str")
+        if type(length) is not int:
+            raise TypeError("length should be int")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"ALTER TABLE {table_name} CHANGE {column_name} {new_column_name} {column_type}({length})"
@@ -364,6 +440,22 @@ class MySQL:
         :param is_auto_increment: 是否自增
         :return:
         """
+        if type(column_name) is not str:
+            raise TypeError("column_name should be str")
+        if type(column_type) is not str:
+            raise TypeError("column_type should be str")
+        if type(length) is not int:
+            raise TypeError("length should be int")
+        if type(is_not_null) is not bool:
+            raise TypeError("is_not_null should be bool")
+        if type(is_primary_key) is not bool:
+            raise TypeError("is_primary_key should be bool")
+        if type(is_auto_increment) is not bool:
+            raise TypeError("is_auto_increment should be bool")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
+        if type(is_first) is not bool:
+            raise TypeError("is_first should be bool")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         constraint = ""
@@ -390,6 +482,12 @@ class MySQL:
         :param index_name: 索引名
         :return:
         """
+        if type(column_name) is not str:
+            raise TypeError("column_name should be str")
+        if type(index_name) is not str:
+            raise TypeError("index_name should be str")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"CREATE INDEX {index_name} ON {table_name} ({column_name});"
@@ -406,6 +504,12 @@ class MySQL:
         :param index_name: 索引名
         :return:
         """
+        if type(column_name) is not str:
+            raise TypeError("column_name should be str")
+        if type(index_name) is not str:
+            raise TypeError("index_name should be str")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"CREATE UNIQUE INDEX {index_name} ON {table_name} ({column_name});"
@@ -421,6 +525,10 @@ class MySQL:
         :param index_name: 索引名
         :return:
         """
+        if type(index_name) is not str:
+            raise TypeError("index_name should be str")
+        if type(table_name) is not str:
+            raise TypeError("table_name should be str")
         connect = self.__pool__.connection()
         cursor = connect.cursor()
         sql = f"ALTER TABLE {table_name} DROP INDEX {index_name};"
@@ -446,13 +554,17 @@ class MySQL:
         connect = self.__pool__.connection()
         return connect
 
-    def show_columns(self, database, table: str):
+    def show_columns(self, database: str, table: str):
         """
         获取某张表的所有字段
         :param database: 数据库名
         :param table: 表名
         :return:
         """
+        if type(database) is not str:
+            raise TypeError("database should be str")
+        if type(table) is not str:
+            raise TypeError("table should be str")
         columns = ["COLUMN_NAME", "DATA_TYPE"]
         dt = self.select("INFORMATION_SCHEMA.COLUMNS", columns) \
             .equal("TABLE_SCHEMA", database, "and").equal("TABLE_NAME", table, "and").run()

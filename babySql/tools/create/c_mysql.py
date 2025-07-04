@@ -14,6 +14,16 @@ class MySQLCreateTable:
 
     def __init__(self, connect, cursor, table_name: str, table_comment: str = None, engine: str = "InnoDB",
                  charset: str = "utf8mb4", collate: str = "utf8mb4_unicode_ci"):
+        if type(table_name) is not str:
+            raise TypeError("table_name must be a str")
+        if table_comment is not None and type(table_comment) is not str:
+            raise TypeError("table_comment must be a str")
+        if type(engine) is not str:
+            raise TypeError("engine must be a str")
+        if type(charset) is not str:
+            raise TypeError("charset must be a str")
+        if type(collate) is not str:
+            raise TypeError("collate must be a str")
         self.__connect__ = connect
         self.__cursor__ = cursor
         self.__table_name__ = table_name
